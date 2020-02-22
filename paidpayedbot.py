@@ -6,6 +6,7 @@ import datetime
 import secrets
 from praw.exceptions import APIException
 
+# Flag True to debug in testing subreddit
 DEBUG = False
 
 if DEBUG:
@@ -13,6 +14,7 @@ if DEBUG:
 else:
     SUB = "rant+personalfinance+personalfinancecanada+truereddit+politics+news+worldnews+advice+relationships+finance+askreddit+funny"
 
+# Message used in comment reply
 MESSAGE_TEMPLATE = """/u/Paidpayedbot to the rescue! \n 
 ***** \n 
 **Paid** or **payed** is the past tense of 'to pay' depending on the implied meaning of 'pay'. 
@@ -22,6 +24,7 @@ You should almost always use **paid**, not **payed**.
 ***** \n
 """
 
+# Authenticate with Reddit
 def authenticate():
     print("Authenticating...\n")
     reddit = praw.Reddit("paidpayed", user_agent="paidpayedbot:v0.1")
@@ -36,6 +39,7 @@ else:
         posts_replied = posts_replied.split("\n")
         posts_replied = list(filter(None, posts_replied))
 
+# Function which searches up to 100,000 comments across several subreddits looking for specific mistake
 def run_grammarbot(reddit):
     while(True):
         for comment in reddit.subreddit(SUB).comments(limit = 100000):
@@ -58,6 +62,7 @@ def run_grammarbot(reddit):
                     print("Comment found: ", comment.id)
         time.sleep(900)
 
+# Run while authenticated
 def main():
     reddit = authenticate()
     while True:
