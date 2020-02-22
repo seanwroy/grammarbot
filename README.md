@@ -4,4 +4,4 @@ I created this bot to practice Python, learn how to scrape websites with an API,
 
 # bot in action
 
-<img src="redditbot.png" height="350px" width="350px">
+<img src="redditbot.png" height="350px" width="500px">
