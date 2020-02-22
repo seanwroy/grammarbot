@@ -19,7 +19,7 @@ MESSAGE_TEMPLATE = """/u/Paidpayedbot to the rescue! \n
 ***** \n 
 **Paid** or **payed** is the past tense of 'to pay' depending on the implied meaning of 'pay'. 
 The first sense is the usual one of giving someone money while the second sense is to seal 
-(the deck or seams of a wooden ship) with pitch or tar to prevent leakage.
+(the deck or seams of a wooden ship) with pitch or tar to prevent leakage.\n
 You should almost always use **paid**, not **payed**.
 ***** \n
 """
