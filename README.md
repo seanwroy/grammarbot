@@ -4,4 +4,4 @@ I created this bot to practice Python, learn how to scrape websites with an API,
 
 # bot in action
 
-![example](redditbot.png = 350x350)
+![example](redditbot.png =350x350)
