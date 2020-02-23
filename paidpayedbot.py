@@ -1,12 +1,12 @@
 #! /usr/bin/env python3
 import praw
 import os
+import sys
 import time
 import datetime
 import secrets
 from praw.exceptions import APIException
 from praw.models import Comment, Message, ModmailMessage
-from multiprocessing import Process
 
 # Flag True to debug in testing subreddit
 DEBUG = False
@@ -33,7 +33,7 @@ BAD_BOT = "\>:-("
 
 # Authenticate with Reddit
 def authenticate():
-    print("Authenticating...\n")
+    print("\nAuthenticating...\n")
     reddit = praw.Reddit("paidpayed", user_agent="paidpayedbot:v0.1")
     print("Authenticated as {}\n".format(reddit.user.me()))
     return reddit
@@ -105,15 +105,33 @@ def run_grammarbot(reddit):
                     with open("replied_to.txt", "a") as f:
                         f.write(reply.id + "\n")
                     if reply.body.lower() == 'delete':
-                        parent = reply.parent()  # the comment made by your bot
-                        parent.delete()
-                        print("Comment deleted upon request by", reply.author.name)
+                        try: 
+                            parent = reply.parent()  # the comment made by your bot
+                            parent.delete()
+                            print("Comment deleted upon request by", reply.author.name)
+                            run_grammarbot(reddit)
+                        except APIException:
+                            with open("auto_smbc_bot.log","a") as f:
+                                f.write('{:%Y-%b-%d %H:%M:%S}'.format(datetime.datetime.now()) + ": Rate Limit exception.\n")
+                                run_grammarbot(reddit)
                     if reply.body.lower() == 'good bot':
-                        reply.reply(GOOD_BOT)
-                        print("Bot has replied with", GOOD_BOT)         
+                        try:
+                            reply.reply(GOOD_BOT)
+                            print("Bot has replied with", GOOD_BOT)
+                            run_grammarbot(reddit) 
+                        except APIException:
+                            with open("auto_smbc_bot.log","a") as f:
+                                f.write('{:%Y-%b-%d %H:%M:%S}'.format(datetime.datetime.now()) + ": Rate Limit exception.\n")
+                                run_grammarbot(reddit)        
                     if reply.body.lower() == 'bad bot':
-                        reply.reply(BAD_BOT)
-                        print("Bot has replied with", BAD_BOT)
+                        try:
+                            reply.reply(BAD_BOT)
+                            print("Bot has replied with", BAD_BOT)
+                            run_grammarbot(reddit)
+                        except APIException:
+                            with open("auto_smbc_bot.log","a") as f:
+                                f.write('{:%Y-%b-%d %H:%M:%S}'.format(datetime.datetime.now()) + ": Rate Limit exception.\n")
+                                run_grammarbot(reddit)
                     else:
                         run_grammarbot(reddit)
                 else:
@@ -124,7 +142,18 @@ def run_grammarbot(reddit):
 def main():
     reddit = authenticate()
     while True:
-        run_grammarbot(reddit)
+        try:
+            run_grammarbot(reddit)
+        except Exception as e:
+            print("General exception caught: ", e)
+            run_grammarbot(reddit)
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print('\nQuit due to keyboard interruption')
+        try:
+            sys.exit(0)
+        except SystemExit:
+            os._exit(0)
