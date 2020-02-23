@@ -12,10 +12,11 @@ DEBUG = False
 if DEBUG:
     SUB = "testingground4bots"
 else:
-    SUB = "rant+personalfinance+personalfinancecanada+truereddit+politics+news+worldnews+advice+relationships+finance+askreddit+funny"
+    SUB = "all"
+    # SUB = "rant+personalfinance+personalfinancecanada+truereddit+politics+news+worldnews+advice+relationships+finance+askreddit+funny+wallstreetbets+"
 
 # Message used in comment reply
-MESSAGE_TEMPLATE = """/u/Paidpayedbot to the rescue! \n 
+MESSAGE_TEMPLATE = """/u/Paidpayedbot found a common grammar mistake in your comment. \n 
 ***** \n 
 **Paid** or **payed** is the past tense of 'to pay' depending on the implied meaning of 'pay'. 
 The first sense is the usual one of giving someone money while the second sense is to seal 
@@ -43,7 +44,7 @@ else:
 def run_grammarbot(reddit):
     while(True):
         for comment in reddit.subreddit(SUB).comments(limit = 100000):
-            if "payed" in comment.body:
+            if " payed" in comment.body:
                 if comment.id not in posts_replied:
                     try:
                         comment.reply(MESSAGE_TEMPLATE)
