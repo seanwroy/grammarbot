@@ -56,7 +56,7 @@ unread_modmessages = []
 
 # Scrapes comments from all subreddits
 def run_grammarbot(reddit):
-    print("Checking...")
+    print("Searching for keyword in comment stream...")
     for comment in reddit.subreddit(SUB).stream.comments():
         if any(keyword in comment.body for keyword in my_keywords):
             if comment.id not in posts_replied:
@@ -83,60 +83,53 @@ def run_grammarbot(reddit):
 
         # This loop handles all types of replies        
         for reply in reddit.inbox.unread(limit=None):
-            print("Reply received...")
+            try:
+                print("Reply received...")
 
-            # Handles three types of replies: messages, modmail and comments -- only responds to comments
-            if isinstance(reply, Message):
-                print(reply.author.name, "has replied with a private message")
-                unread_messages.append(reply)
-                reddit.inbox.mark_read(unread_messages)
-                run_grammarbot(reddit)
-            if isinstance(reply, ModmailMessage):
-                print(reply.author.name, "has replied with a moderator message")
-                unread_modmessages.append(reply)
-                reddit.inbox.mark_read(unread_modmessages)
-                run_grammarbot(reddit)
-            if isinstance(reply, Comment):
-                if reply.id not in posts_replied:
-                    print(reply.author.name, "has replied with:", reply.body)
-                    posts_replied.append(reply.id)
-                    unread_comments.append(reply)
-                    reddit.inbox.mark_read(unread_comments)
-                    with open("replied_to.txt", "a") as f:
-                        f.write(reply.id + "\n")
-                    if reply.body.lower() == 'delete':
-                        try: 
+                # Handles three types of replies: messages, modmail and comments -- only responds to comments
+                if isinstance(reply, Message):
+                    print(reply.author.name, "has replied with a private message")
+                    unread_messages.append(reply)
+                    reddit.inbox.mark_read(unread_messages)
+                    run_grammarbot(reddit)
+
+                if isinstance(reply, ModmailMessage):
+                    print(reply.author.name, "has replied with a moderator message")
+                    unread_modmessages.append(reply)
+                    reddit.inbox.mark_read(unread_modmessages)
+                    run_grammarbot(reddit)
+
+                if isinstance(reply, Comment):
+                    if reply.id not in posts_replied:
+                        print(reply.author.name, "has replied with:", reply.body)
+                        posts_replied.append(reply.id)
+                        unread_comments.append(reply)
+                        reddit.inbox.mark_read(unread_comments)
+                        with open("replied_to.txt", "a") as f:
+                            f.write(reply.id + "\n")
+
+                        if reply.body.lower() == 'delete':
                             parent = reply.parent()  # the comment made by your bot
                             parent.delete()
                             print("Comment deleted upon request by", reply.author.name)
                             run_grammarbot(reddit)
-                        except APIException:
-                            with open("auto_smbc_bot.log","a") as f:
-                                f.write('{:%Y-%b-%d %H:%M:%S}'.format(datetime.datetime.now()) + ": Rate Limit exception.\n")
-                                run_grammarbot(reddit)
-                    if reply.body.lower() == 'good bot':
-                        try:
+                        if reply.body.lower() == 'good bot':
                             reply.reply(GOOD_BOT)
                             print("Bot has replied with", GOOD_BOT)
-                            run_grammarbot(reddit) 
-                        except APIException:
-                            with open("auto_smbc_bot.log","a") as f:
-                                f.write('{:%Y-%b-%d %H:%M:%S}'.format(datetime.datetime.now()) + ": Rate Limit exception.\n")
-                                run_grammarbot(reddit)        
-                    if reply.body.lower() == 'bad bot':
-                        try:
+                            run_grammarbot(reddit)        
+                        if reply.body.lower() == 'bad bot':
                             reply.reply(BAD_BOT)
                             print("Bot has replied with", BAD_BOT)
                             run_grammarbot(reddit)
-                        except APIException:
-                            with open("auto_smbc_bot.log","a") as f:
-                                f.write('{:%Y-%b-%d %H:%M:%S}'.format(datetime.datetime.now()) + ": Rate Limit exception.\n")
-                                run_grammarbot(reddit)
+                        else:
+                            run_grammarbot(reddit)
                     else:
-                        run_grammarbot(reddit)
-                else:
-                    break
-        
+                        break
+                    
+            except APIException:
+                with open("auto_smbc_bot.log","a") as f:
+                    f.write('{:%Y-%b-%d %H:%M:%S}'.format(datetime.datetime.now()) + ": Rate Limit exception.\n")
+                    run_grammarbot(reddit)
 
 # Run while authenticated
 def main():
