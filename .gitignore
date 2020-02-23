@@ -4,6 +4,9 @@ praw.ini
 # comment-id data
 commented.txt
 
+# replied_to.txt
+replied_to.txt
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
