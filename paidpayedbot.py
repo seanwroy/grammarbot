@@ -13,7 +13,6 @@ if DEBUG:
     SUB = "testingground4bots"
 else:
     SUB = "all"
-    # SUB = "rant+personalfinance+personalfinancecanada+truereddit+politics+news+worldnews+advice+relationships+finance+askreddit+funny+wallstreetbets+"
 
 # Message used in comment reply
 MESSAGE_TEMPLATE = """/u/Paidpayedbot found a common grammar mistake in your comment. \n 
@@ -44,7 +43,7 @@ else:
 def run_grammarbot(reddit):
     while(True):
         for comment in reddit.subreddit(SUB).comments(limit = 100000):
-            if " payed" in comment.body:
+            if "payed" in comment.body:
                 if comment.id not in posts_replied:
                     try:
                         comment.reply(MESSAGE_TEMPLATE)
