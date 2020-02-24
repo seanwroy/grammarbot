@@ -8,7 +8,7 @@ import secrets
 from praw.exceptions import APIException
 from praw.models import Comment, Message, ModmailMessage
 
-# Flag True to debug in testing subreddit
+# Set flag to True to debug in testing subreddit
 DEBUG = False
 
 if DEBUG:
@@ -29,7 +29,7 @@ You should almost always use **paid**, not **payed**.
 
 GOOD_BOT = ":)"
 
-BAD_BOT = "\>:-("
+BAD_BOT = "\r>:-("
 
 # Authenticate with Reddit
 def authenticate():
@@ -46,7 +46,7 @@ else:
         posts_replied = posts_replied.split("\n")
         posts_replied = list(filter(None, posts_replied))
 
-# Term array
+# Keyword array - separate terms with commas
 my_keywords = [' payed']
 
 # Received comments and messages arrays
@@ -54,10 +54,13 @@ unread_comments = []
 unread_messages = []
 unread_modmessages = []
 
-# Scrapes comments from all subreddits
+# Main function
 def run_grammarbot(reddit):
     print("Searching for keyword in comment stream...")
+
+    # Scrapes comments from all subreddits    
     for comment in reddit.subreddit(SUB).stream.comments():
+        time.sleep(3)
         if any(keyword in comment.body for keyword in my_keywords):
             if comment.id not in posts_replied:
                 if comment.author.name != reddit.user.me:
@@ -81,8 +84,9 @@ def run_grammarbot(reddit):
                     print("Comment found: ", comment.id)
                 time.sleep(30)
 
-        # This loop handles all types of replies        
+        # This loop searches inbox      
         for reply in reddit.inbox.unread(limit=None):
+            time.sleep(3)
             try:
                 print("Reply received...")
 
@@ -125,7 +129,7 @@ def run_grammarbot(reddit):
                             run_grammarbot(reddit)
                     else:
                         break
-                    
+
             except APIException:
                 with open("auto_smbc_bot.log","a") as f:
                     f.write('{:%Y-%b-%d %H:%M:%S}'.format(datetime.datetime.now()) + ": Rate Limit exception.\n")
