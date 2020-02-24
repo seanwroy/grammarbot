@@ -29,7 +29,7 @@ You should almost always use **paid**, not **payed**.
 
 GOOD_BOT = ":)"
 
-BAD_BOT = "\r>:-("
+BAD_BOT = "\\>:-("
 
 # Authenticate with Reddit
 def authenticate():
@@ -60,10 +60,10 @@ def run_grammarbot(reddit):
 
     # Scrapes comments from all subreddits    
     for comment in reddit.subreddit(SUB).stream.comments():
-        time.sleep(3)
         if any(keyword in comment.body for keyword in my_keywords):
             if comment.id not in posts_replied:
                 if comment.author.name != reddit.user.me:
+
                     try:
                         comment.reply(MESSAGE_TEMPLATE)
                         print("Replied to", comment.id, "written by", comment.author.name, "in", SUB)
@@ -75,6 +75,7 @@ def run_grammarbot(reddit):
                     except Exception as e:
                         print("General exception caught: ", e)
                         run_grammarbot(reddit)
+
                     if DEBUG:
                         print("Replied to: ", comment.id)
                     posts_replied.append(comment.id)
@@ -82,11 +83,9 @@ def run_grammarbot(reddit):
                         f.write(comment.id + "\n")
                 if DEBUG:
                     print("Comment found: ", comment.id)
-                time.sleep(30)
 
         # This loop searches inbox      
         for reply in reddit.inbox.unread(limit=None):
-            time.sleep(3)
             try:
                 print("Reply received...")
 
@@ -97,13 +96,13 @@ def run_grammarbot(reddit):
                     reddit.inbox.mark_read(unread_messages)
                     run_grammarbot(reddit)
 
-                if isinstance(reply, ModmailMessage):
+                elif isinstance(reply, ModmailMessage):
                     print(reply.author.name, "has replied with a moderator message")
                     unread_modmessages.append(reply)
                     reddit.inbox.mark_read(unread_modmessages)
                     run_grammarbot(reddit)
 
-                if isinstance(reply, Comment):
+                elif isinstance(reply, Comment):
                     if reply.id not in posts_replied:
                         print(reply.author.name, "has replied with:", reply.body)
                         posts_replied.append(reply.id)
@@ -117,11 +116,11 @@ def run_grammarbot(reddit):
                             parent.delete()
                             print("Comment deleted upon request by", reply.author.name)
                             run_grammarbot(reddit)
-                        if reply.body.lower() == 'good bot':
+                        elif reply.body.lower() == 'good bot':
                             reply.reply(GOOD_BOT)
                             print("Bot has replied with", GOOD_BOT)
                             run_grammarbot(reddit)        
-                        if reply.body.lower() == 'bad bot':
+                        elif reply.body.lower() == 'bad bot':
                             reply.reply(BAD_BOT)
                             print("Bot has replied with", BAD_BOT)
                             run_grammarbot(reddit)
@@ -131,9 +130,12 @@ def run_grammarbot(reddit):
                         break
 
             except APIException:
-                with open("auto_smbc_bot.log","a") as f:
+                with open("auto_grmr_bot.log","a") as f:
                     f.write('{:%Y-%b-%d %H:%M:%S}'.format(datetime.datetime.now()) + ": Rate Limit exception.\n")
                     run_grammarbot(reddit)
+            except AttributeError:
+                print("Caught an attribute error. Restarting...")
+                run_grammarbot(reddit)
 
 # Run while authenticated
 def main():
