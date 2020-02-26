@@ -14,17 +14,41 @@ DEBUG = False
 if DEBUG:
     SUB = "testingground4bots"
 else:
-    SUB = "all"
+    SUB = "personalfinancecanada+canada+onguardforthee+ontario+askacanadian+kpop+rant"
 
 # Message used in comment reply
-MESSAGE_TEMPLATE = """/u/Paidpayedbot found a common grammar mistake in your comment. \n 
+PAYED = """/u/Paidpayedbot found a common spelling mistake in your comment.\n 
 ***** \n 
 **Paid** or **payed** is the past tense of 'to pay' depending on the implied meaning of 'pay'. 
 The first form is the common meaning of giving someone money while the second form is to seal 
 (the deck or seams of a wooden ship) with pitch or tar to prevent leakage.\n
 You should almost always use **paid**, not **payed**.
 ***** \n
-^Reply ^with ^'delete' ^with ^no ^single ^quotes ^if ^you ^wish ^for ^bot ^to ^remove ^comment
+^Reply ^with ^'delete' ^\(with ^no ^single ^quotes\) ^if ^you ^wish ^for ^bot ^to ^remove ^comment
+"""
+DEFINATELY = """/u/Paidpayedbot found a common spelling mistake in your comment. \n 
+***** \n 
+**Definately** is spelled **definitely**.
+***** \n
+^Reply ^with ^'delete' ^\(with ^no ^single ^quotes\) ^if ^you ^wish ^for ^bot ^to ^remove ^comment
+"""
+NECCESSARY = """/u/Paidpayedbot found a common spelling mistake in your comment. \n 
+***** \n 
+**Neccessary** is spelled **necessary**.
+***** \n
+^Reply ^with ^'delete' ^\(with ^no ^single ^quotes\) ^if ^you ^wish ^for ^bot ^to ^remove ^comment
+"""
+OCCURED = """/u/Paidpayedbot found a common spelling mistake in your comment. \n 
+***** \n 
+**Occured** is spelled **occurred**.
+***** \n
+^Reply ^with ^'delete' ^\(with ^no ^single ^quotes\) ^if ^you ^wish ^for ^bot ^to ^remove ^comment
+"""
+SEPERATE = """/u/Paidpayedbot found a common spelling mistake in your comment. \n 
+***** \n 
+**Seperate** is spelled **separate**.
+***** \n
+^Reply ^with ^'delete' ^\(with ^no ^single ^quotes\) ^if ^you ^wish ^for ^bot ^to ^remove ^comment
 """
 
 GOOD_BOT = ":)"
@@ -47,7 +71,7 @@ else:
         posts_replied = list(filter(None, posts_replied))
 
 # Keyword array - separate terms with commas
-my_keywords = [' payed']
+my_keywords = [' payed', ' definately', ' neccessary', ' occured', ' seperate']
 
 # Received comments and messages arrays
 unread_comments = []
@@ -56,33 +80,37 @@ unread_modmessages = []
 
 # Main function
 def run_grammarbot(reddit):
-    print("Searching for keyword in comment stream...")
+    print("Searching keywords in comment stream...")
 
     # Scrapes comments from all subreddits    
     for comment in reddit.subreddit(SUB).stream.comments():
-        if any(keyword in comment.body for keyword in my_keywords):
-            if comment.id not in posts_replied:
-                if comment.author.name != reddit.user.me:
-
-                    try:
-                        comment.reply(MESSAGE_TEMPLATE)
-                        print("Replied to", comment.id, "written by", comment.author.name, "in", SUB)
-                    except APIException:
-                        with open("auto_smbc_bot.log","a") as f:
-                            f.write('{:%Y-%b-%d %H:%M:%S}'.format(datetime.datetime.now()) + ": Rate Limit exception.\n")
-                            time.sleep(600) # Equals ten minutes, roughly equal to Rate Limit
+        if comment.id not in posts_replied and comment.author.name != reddit.user.me:
+            for keyword in my_keywords:
+                if keyword in comment.body:
+                    if keyword == ' payed':
+                        correctSpelling = PAYED
+                    elif keyword == ' definately':
+                        correctSpelling = DEFINATELY
+                    elif keyword == ' neccessary':
+                        correctSpelling = NECCESSARY
+                    elif keyword == ' occured':
+                        correctSpelling = OCCURED
+                    elif keyword == ' seperate':
+                        correctSpelling = SEPERATE
+        
+                        try:
+                            comment.reply(correctSpelling)
+                            print("Replied to", comment.id, "written by", comment.author.name, "in", SUB)
+                        except APIException:
+                            with open("auto_grmrbt_bot.log","a") as f:
+                                f.write('{:%Y-%b-%d %H:%M:%S}'.format(datetime.datetime.now()) + ": Rate Limit exception.\n")
+                                time.sleep(600) # Equals ten minutes, roughly equal to Rate Limit
+                                run_grammarbot(reddit)
+                        except Exception as e:
+                            print("General exception caught: ", e)
                             run_grammarbot(reddit)
-                    except Exception as e:
-                        print("General exception caught: ", e)
-                        run_grammarbot(reddit)
-
-                    if DEBUG:
-                        print("Replied to: ", comment.id)
-                    posts_replied.append(comment.id)
-                    with open("replied_to.txt", "a") as f:
-                        f.write(comment.id + "\n")
-                if DEBUG:
-                    print("Comment found: ", comment.id)
+                        finally:
+                            run_grammarbot(reddit)
 
         # This loop searches inbox      
         for reply in reddit.inbox.unread(limit=None):
@@ -135,6 +163,8 @@ def run_grammarbot(reddit):
                     run_grammarbot(reddit)
             except AttributeError:
                 print("Caught an attribute error. Restarting...")
+                run_grammarbot(reddit)
+            finally:
                 run_grammarbot(reddit)
 
 # Run while authenticated
