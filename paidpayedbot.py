@@ -14,7 +14,7 @@ DEBUG = False
 if DEBUG:
     SUB = "testingground4bots"
 else:
-    SUB = "personalfinancecanada+canada+onguardforthee+ontario+askacanadian+kpop+rant"
+    SUB = "all"
 
 # Message used in comment reply
 PAYED = """/u/Paidpayedbot found a common spelling mistake in your comment.\n 
