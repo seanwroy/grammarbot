@@ -98,19 +98,19 @@ def run_grammarbot(reddit):
                     elif keyword == ' seperate':
                         correctSpelling = SEPERATE
         
-                        try:
-                            comment.reply(correctSpelling)
-                            print("Replied to", comment.id, "written by", comment.author.name, "in", SUB)
-                        except APIException:
-                            with open("auto_grmrbt_bot.log","a") as f:
-                                f.write('{:%Y-%b-%d %H:%M:%S}'.format(datetime.datetime.now()) + ": Rate Limit exception.\n")
-                                time.sleep(600) # Equals ten minutes, roughly equal to Rate Limit
-                                run_grammarbot(reddit)
-                        except Exception as e:
-                            print("General exception caught: ", e)
+                    try:
+                        comment.reply(correctSpelling)
+                        print("Replied to", comment.id, "written by", comment.author.name, "in", SUB)
+                    except APIException:
+                        with open("auto_grmrbt_bot.log","a") as f:
+                            f.write('{:%Y-%b-%d %H:%M:%S}'.format(datetime.datetime.now()) + ": Rate Limit exception.\n")
+                            time.sleep(600) # Equals ten minutes, roughly equal to Rate Limit
                             run_grammarbot(reddit)
-                        finally:
-                            run_grammarbot(reddit)
+                    except Exception as e:
+                        print("General exception caught: ", e)
+                        run_grammarbot(reddit)
+                    finally:
+                        run_grammarbot(reddit)
 
         # This loop searches inbox      
         for reply in reddit.inbox.unread(limit=None):
